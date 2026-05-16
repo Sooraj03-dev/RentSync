@@ -143,7 +143,7 @@ export default function RegisterPage() {
           
           {/* Progress */}
           <div className="mb-8">
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">
               <span>Step 1 of 2 — Your details</span>
             </div>
             <div className="flex gap-2 h-1.5">
@@ -182,7 +182,7 @@ export default function RegisterPage() {
                 {avatarPreview ? (
                   <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#0B4F6C] transition-colors" />
+                  <Upload className="w-5 h-5 text-slate-500 group-hover:text-[#0B4F6C] transition-colors" />
                 )}
                 {avatarPreview && (
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

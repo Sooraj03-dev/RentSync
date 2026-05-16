@@ -171,7 +171,7 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -226,7 +226,7 @@ export default function SignupPage() {
 
             <div className="flex items-center gap-3 my-8">
               <div className="h-px flex-1 bg-slate-200" />
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Or register with</span>
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Or register with</span>
               <div className="h-px flex-1 bg-slate-200" />
             </div>
 
@@ -264,7 +264,7 @@ export default function SignupPage() {
             </p>
           </div>
 
-          <div className="text-center mt-8 text-xs text-slate-400">
+          <div className="text-center mt-8 text-xs text-slate-500">
             <div className="flex justify-center gap-4 mb-2">
               <Link href="#" className="hover:text-slate-600 transition-colors">Privacy Policy</Link>
               <Link href="#" className="hover:text-slate-600 transition-colors">Terms of Service</Link>

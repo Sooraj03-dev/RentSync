@@ -152,7 +152,7 @@ export default function VerifyPage() {
           <button
             id="resend-otp-btn"
             type="button"
-            className="text-xs text-slate-400 hover:text-[#0B4F6C] transition-colors text-center"
+            className="text-xs text-slate-500 hover:text-[#0B4F6C] transition-colors text-center"
           >
             Didn&apos;t receive a code? <span className="font-semibold underline">Resend</span>
           </button>

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#6366F1",
+  themeColor: "#2563EB",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -41,7 +41,7 @@ export default function RootLayout({
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
         />
-        <link rel="apple-touch-icon" href="/icons/192.png" />
+        <link rel="apple-touch-icon" href="/icons/icon.svg" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={inter.className}>{children}</body>

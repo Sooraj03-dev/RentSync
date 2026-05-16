@@ -143,40 +143,48 @@ export default function OnboardPage() {
     router.push("/tenant");
   };
 
+  const handleSkip = async (targetRoute: string) => {
+    if (!userId) return;
+    setSubmitting(true);
+    await supabase.from("profiles").update({ onboarded: true }).eq("id", userId);
+    localStorage.setItem("rs_onboarded", "true");
+    router.push(targetRoute);
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0B4F6C]" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center py-12 px-4 font-sans">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center py-12 px-4 font-sans">
       <div className="w-full max-w-md">
 
         {/* Back Link */}
-        <Link href="/register" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-6 w-fit font-medium">
+        <Link href="/register" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-6 w-fit font-medium">
           <ArrowLeft className="w-4 h-4" /> Back
         </Link>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xl">
 
           {/* Progress */}
           <div className="mb-8">
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">
               <span>Step 2 of 2 — {role === "landlord" ? "Add your first property" : "Link to your property"}</span>
             </div>
             <div className="flex gap-2 h-1.5">
-              <div className="flex-1 bg-slate-200 rounded-full" />
-              <div className="flex-1 bg-[#0B4F6C] rounded-full" />
+              <div className="flex-1 bg-slate-700 rounded-full" />
+              <div className="flex-1 bg-blue-600 rounded-full" />
             </div>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-6">
-              <p className="text-xs text-red-600 font-medium">{error}</p>
+            <div className="bg-red-900/20 border border-red-800 rounded-xl px-4 py-3 mb-6">
+              <p className="text-xs text-red-400 font-medium">{error}</p>
             </div>
           )}
 
@@ -185,30 +193,30 @@ export default function OnboardPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-2">Property Name</label>
-                <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-3 bg-white focus-within:border-[#0B4F6C] focus-within:ring-1 focus-within:ring-[#0B4F6C] transition-colors">
-                  <Building className="w-4 h-4 text-slate-400" />
+                <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-colors">
+                  <Building className="w-4 h-4 text-slate-500" />
                   <input
                     type="text"
                     required
                     value={propName}
                     onChange={(e) => setPropName(e.target.value)}
                     placeholder="e.g. Green Valley Apartments"
-                    className="flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none"
+                    className="flex-1 bg-transparent text-sm text-slate-900 placeholder-slate-500 outline-none"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-2">Full Address</label>
-                <div className="flex items-start gap-2 border border-slate-200 rounded-xl px-4 py-3 bg-white focus-within:border-[#0B4F6C] focus-within:ring-1 focus-within:ring-[#0B4F6C] transition-colors">
-                  <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
+                <div className="flex items-start gap-2 border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-colors">
+                  <MapPin className="w-4 h-4 text-slate-500 mt-0.5" />
                   <textarea
                     required
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Building, Street, Area, City, PIN"
                     rows={2}
-                    className="flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none resize-none"
+                    className="flex-1 bg-transparent text-sm text-slate-900 placeholder-slate-500 outline-none resize-none"
                   />
                 </div>
               </div>
@@ -222,7 +230,7 @@ export default function OnboardPage() {
                     required
                     value={units}
                     onChange={(e) => setUnits(Number(e.target.value))}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C] transition-colors"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                   />
                 </div>
                 <div>
@@ -230,7 +238,7 @@ export default function OnboardPage() {
                   <select
                     value={propType}
                     onChange={(e) => setPropType(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C] transition-colors appearance-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors appearance-none"
                   >
                     <option value="apartment">Apartment Building</option>
                     <option value="pg">PG</option>
@@ -243,16 +251,16 @@ export default function OnboardPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full mt-2 bg-[#0B4F6C] hover:bg-[#083a52] text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 shadow-md shadow-[#0B4F6C]/20"
+                className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 shadow-md shadow-blue-900/20"
               >
                 {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
                 {submitting ? "Saving..." : "Add property & go to dashboard →"}
               </button>
 
               <div className="text-center mt-2">
-                <Link href="/dashboard" className="text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors">
+                <button type="button" onClick={() => handleSkip("/dashboard")} disabled={submitting} className="text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors disabled:opacity-50">
                   Set up later →
-                </Link>
+                </button>
               </div>
 
             </form>
@@ -260,24 +268,24 @@ export default function OnboardPage() {
             <div className="flex flex-col gap-6">
 
               {/* Option A */}
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
+              <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-5">
                 <h3 className="text-sm font-bold text-slate-800 mb-4">Option A: I have an invite code</h3>
                 <form onSubmit={handleTenantSubmit} className="flex flex-col gap-4">
-                  <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-3 bg-white focus-within:border-[#0B4F6C] focus-within:ring-1 focus-within:ring-[#0B4F6C] transition-colors">
-                    <Hash className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-colors">
+                    <Hash className="w-4 h-4 text-slate-500" />
                     <input
                       type="text"
                       required
                       value={inviteCode}
                       onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                       placeholder="e.g. AB12CD34"
-                      className="flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none uppercase tracking-widest font-mono"
+                      className="flex-1 bg-transparent text-sm text-slate-900 placeholder-slate-500 outline-none uppercase tracking-widest font-mono"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={submitting || inviteCode.length !== 8}
-                    className="w-full bg-[#0B4F6C] hover:bg-[#083a52] text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center transition-colors disabled:opacity-50 shadow-md shadow-[#0B4F6C]/20"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center transition-colors disabled:opacity-50 shadow-md shadow-blue-900/20"
                   >
                     {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify Code"}
                   </button>
@@ -288,12 +296,14 @@ export default function OnboardPage() {
               <div className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col items-center text-center shadow-sm">
                 <h3 className="text-sm font-bold text-slate-800 mb-1">Option B: No invite code yet?</h3>
                 <p className="text-xs text-slate-500 mb-4">You can link your tenancy later from Settings.</p>
-                <Link
-                  href="/tenant"
-                  className="w-full bg-white border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-2.5 rounded-xl text-sm transition-colors text-center"
+                <button
+                  type="button"
+                  onClick={() => handleSkip("/tenant")}
+                  disabled={submitting}
+                  className="w-full bg-slate-50 border-2 border-slate-200 hover:border-slate-600 hover:bg-slate-700 text-slate-800 font-bold py-2.5 rounded-xl text-sm transition-colors text-center disabled:opacity-50"
                 >
                   Go to dashboard anyway →
-                </Link>
+                </button>
               </div>
 
             </div>

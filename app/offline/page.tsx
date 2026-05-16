@@ -5,7 +5,7 @@ export default function OfflinePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-100 to-white flex flex-col items-center justify-center px-4 text-center gap-6">
       <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center">
-        <WifiOff className="w-10 h-10 text-slate-400" />
+        <WifiOff className="w-10 h-10 text-slate-500" />
       </div>
 
       <div className="space-y-2">
@@ -18,7 +18,7 @@ export default function OfflinePage() {
 
       {/* Cached rent status card */}
       <div className="w-full max-w-sm bg-white rounded-2xl border border-slate-100 shadow-sm p-5 text-left">
-        <p className="text-xs font-semibold tracking-widest text-slate-400 uppercase mb-3">
+        <p className="text-xs font-semibold tracking-widest text-slate-500 uppercase mb-3">
           Last Known Rent Status
         </p>
         <div className="flex items-center justify-between">
@@ -27,7 +27,7 @@ export default function OfflinePage() {
             Paid
           </span>
         </div>
-        <p className="text-xs text-slate-400 mt-2">
+        <p className="text-xs text-slate-500 mt-2">
           Data cached when you last had a connection.
         </p>
       </div>

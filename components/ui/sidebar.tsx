@@ -34,10 +34,10 @@ export function Sidebar() {
   const links = role === "landlord" ? landlordLinks : tenantLinks;
 
   return (
-    <aside className="flex flex-col w-64 h-screen border-r bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-      <div className="flex items-center h-16 px-6 border-b border-slate-200 dark:border-slate-800">
+    <aside className="flex flex-col w-64 h-screen border-r bg-slate-50 dark:bg-slate-100 border-slate-200 dark:border-slate-300">
+      <div className="flex items-center h-16 px-6 border-b border-slate-200 dark:border-slate-300">
         <Building className="w-6 h-6 text-blue-600 mr-2" />
-        <span className="text-xl font-bold text-slate-900 dark:text-slate-100">RentSync</span>
+        <span className="text-xl font-bold text-slate-900 dark:text-slate-900">RentSync</span>
       </div>
       <div className="flex flex-col flex-grow py-4">
         <nav className="flex-1 px-4 space-y-1">
@@ -52,7 +52,7 @@ export function Sidebar() {
                   "flex items-center px-4 py-2 text-sm font-medium rounded-md",
                   isActive 
                     ? "bg-blue-100 text-blue-900 dark:bg-blue-900/50 dark:text-blue-100" 
-                    : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                    : "text-slate-700 hover:bg-slate-100 dark:text-slate-700 dark:hover:bg-slate-50"
                 )}
               >
                 <Icon className="w-5 h-5 mr-3" />
@@ -73,8 +73,8 @@ export function Sidebar() {
           </div>
         )}
 
-        <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-800 space-y-1">
-          <Link href="/settings" className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 rounded-md hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+        <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-300 space-y-1">
+          <Link href="/settings" className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 rounded-md hover:bg-slate-100 dark:text-slate-700 dark:hover:bg-slate-50">
             <Settings className="w-5 h-5 mr-3" />
             Settings
           </Link>

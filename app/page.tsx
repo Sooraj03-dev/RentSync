@@ -69,7 +69,7 @@ export default function Home() {
             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/cartographer.png")' }}></div>
             
             {/* Map UI Elements */}
-            <div className="absolute top-6 left-6 bg-white p-3 rounded-xl shadow-md border border-slate-100 flex items-center gap-2 text-sm w-64 text-slate-400">
+            <div className="absolute top-6 left-6 bg-white p-3 rounded-xl shadow-md border border-slate-100 flex items-center gap-2 text-sm w-64 text-slate-500">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
               Search neighborhoods...
             </div>
@@ -141,7 +141,7 @@ export default function Home() {
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xl font-bold text-[#0B4F6C]">RentSync</span>
             </div>
-            <p className="text-xs text-slate-400">© 2024 RentSync. All rights reserved.</p>
+            <p className="text-xs text-slate-500">© 2024 RentSync. All rights reserved.</p>
           </div>
           <nav className="flex gap-6 text-sm font-medium text-slate-500">
             <Link href="#" className="hover:text-slate-900">Privacy Policy</Link>

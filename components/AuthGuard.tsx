@@ -20,10 +20,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-100">
         <div className="flex flex-col space-y-3">
-          <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800"></div>
-          <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-50"></div>
+          <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-50"></div>
         </div>
       </div>
     );
