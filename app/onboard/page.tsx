@@ -145,16 +145,16 @@ export default function OnboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#0B4F6C]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center py-12 px-4 font-sans">
+    <div className="min-h-screen bg-white flex flex-col items-center py-12 px-4 font-sans">
       <div className="w-full max-w-md">
-        
+
         {/* Back Link */}
         <Link href="/register" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-6 w-fit font-medium">
           <ArrowLeft className="w-4 h-4" /> Back
@@ -162,7 +162,7 @@ export default function OnboardPage() {
 
         {/* Card */}
         <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-          
+
           {/* Progress */}
           <div className="mb-8">
             <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">
@@ -182,7 +182,7 @@ export default function OnboardPage() {
 
           {role === "landlord" ? (
             <form onSubmit={handleLandlordSubmit} className="flex flex-col gap-5">
-              
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-2">Property Name</label>
                 <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-3 bg-white focus-within:border-[#0B4F6C] focus-within:ring-1 focus-within:ring-[#0B4F6C] transition-colors">
@@ -258,7 +258,7 @@ export default function OnboardPage() {
             </form>
           ) : (
             <div className="flex flex-col gap-6">
-              
+
               {/* Option A */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
                 <h3 className="text-sm font-bold text-slate-800 mb-4">Option A: I have an invite code</h3>
@@ -288,8 +288,8 @@ export default function OnboardPage() {
               <div className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col items-center text-center shadow-sm">
                 <h3 className="text-sm font-bold text-slate-800 mb-1">Option B: No invite code yet?</h3>
                 <p className="text-xs text-slate-500 mb-4">You can link your tenancy later from Settings.</p>
-                <Link 
-                  href="/tenant" 
+                <Link
+                  href="/tenant"
                   className="w-full bg-white border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-2.5 rounded-xl text-sm transition-colors text-center"
                 >
                   Go to dashboard anyway →
