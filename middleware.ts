@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -12,13 +12,13 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2])
           );
         },
       },
@@ -30,41 +30,32 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
+  const pathname = request.nextUrl.pathname;
 
-  // ── Public routes (no auth required) ──
-  const publicPaths = ["/login", "/verify", "/offline", "/listings", "/register", "/"];
-  if (publicPaths.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
-    return supabaseResponse;
-  }
-
-  // ── No session → redirect to login ──
+  // 1. No session → login
   if (!user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // ── Fetch user role ──
+  // 2. Fetch profile
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, onboarded")
+    .select("name, role")
     .eq("id", user.id)
     .single();
 
-  const role = profile?.role as "landlord" | "tenant" | null;
-  const onboarded = profile?.onboarded ?? false;
-
-  // ── Not onboarded yet → redirect to onboard ──
-  if (!onboarded && pathname !== "/onboard") {
-    return NextResponse.redirect(new URL("/onboard", request.url));
+  // 3. No name → must register first (except on /register itself)
+  if (!profile?.name && pathname !== "/register") {
+    return NextResponse.redirect(new URL("/register", request.url));
   }
 
-  // ── Role-based path guards ──
-  if (role === "landlord" && pathname.startsWith("/tenant")) {
+  // 4. Role-based path guards
+  if (profile?.role === "landlord" && pathname.startsWith("/tenant")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
-  if (role === "tenant" && pathname.startsWith("/dashboard")) {
+  if (profile?.role === "tenant" && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/tenant", request.url));
   }
 
@@ -73,6 +64,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icons|manifest.json|sw.js|api).*)",
+    "/dashboard/:path*", "/tenant/:path*", "/onboard", "/register"
   ],
 };
