@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Building2, Home, Upload, Loader2, CheckCircle2 } from "lucide-react";
+import { Building2, Home, Upload, Loader2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -93,13 +93,12 @@ export default function RegisterPage() {
         .upload(filePath, avatarFile, { upsert: true });
 
       if (uploadError) {
-        setError(`Failed to upload avatar: ${uploadError.message}`);
-        setSubmitting(false);
-        return;
+        // If bucket missing, just skip the avatar — don't block the user
+        console.warn("Avatar upload skipped:", uploadError.message);
+      } else {
+        const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        avatar_url = data.publicUrl;
       }
-
-      const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-      avatar_url = data.publicUrl;
     }
 
     const { error: updateError } = await supabase
@@ -118,82 +117,82 @@ export default function RegisterPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0D1117] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#6366F1]" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0B4F6C]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0D1117] flex flex-col items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-8 font-sans">
       <div className="w-full max-w-md">
         
         {/* Header */}
         <div className="flex flex-col items-center mb-8 gap-3">
-          <div className="w-12 h-12 rounded-xl bg-[#6366F1] flex items-center justify-center font-bold text-white text-xl shadow-lg">
+          <div className="w-12 h-12 rounded-xl bg-[#0B4F6C] flex items-center justify-center font-bold text-white text-xl shadow-lg">
             RS
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-[#E6EDF3] tracking-tight">RentSync</h1>
-            <p className="text-sm text-[#8B949E] mt-1">Complete your profile to continue</p>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">RentSync</h1>
+            <p className="text-sm text-slate-500 mt-1">Complete your profile to continue</p>
           </div>
         </div>
 
         {/* Card */}
-        <div className="bg-[#161B22] rounded-xl border border-[#30363D] p-6 shadow-xl">
+        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
           
           {/* Progress */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between text-xs font-semibold text-[#8B949E] uppercase tracking-wider mb-2">
+          <div className="mb-8">
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">
               <span>Step 1 of 2 — Your details</span>
             </div>
             <div className="flex gap-2 h-1.5">
-              <div className="flex-1 bg-[#6366F1] rounded-full" />
-              <div className="flex-1 bg-[#30363D] rounded-full" />
+              <div className="flex-1 bg-[#0B4F6C] rounded-full" />
+              <div className="flex-1 bg-slate-100 rounded-full" />
             </div>
           </div>
 
           {/* Role Banner */}
-          <div className="bg-[#0D1117] border border-[#30363D] rounded-lg p-3 flex flex-col gap-2 mb-6">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col gap-2.5 mb-8">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-[#8B949E]">Account Type</span>
+              <span className="text-xs font-semibold text-slate-500">Account Type</span>
               {role === "landlord" ? (
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold uppercase tracking-wider">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-bold uppercase tracking-wider">
                   <Building2 className="w-3.5 h-3.5" /> Landlord
                 </span>
               ) : (
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold uppercase tracking-wider">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-bold uppercase tracking-wider">
                   <Home className="w-3.5 h-3.5" /> Tenant
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-[#8B949E]">
-              Signed in as <strong className="text-[#E6EDF3]">{email}</strong>. Wrong role? Sign out and try again.
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Signed in as <strong className="text-slate-700 font-semibold">{email}</strong>. Wrong role? Sign out and try again.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             
             {/* Avatar Upload */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5">
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="w-[60px] h-[60px] rounded-full bg-[#0D1117] border border-[#30363D] border-dashed flex items-center justify-center cursor-pointer hover:border-[#6366F1]/50 overflow-hidden shrink-0 group relative"
+                className="w-16 h-16 rounded-full bg-slate-50 border-2 border-slate-200 border-dashed flex items-center justify-center cursor-pointer hover:border-[#0B4F6C]/50 hover:bg-sky-50 overflow-hidden shrink-0 group relative transition-colors"
               >
                 {avatarPreview ? (
                   <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <Upload className="w-5 h-5 text-[#8B949E] group-hover:text-[#6366F1] transition-colors" />
+                  <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#0B4F6C] transition-colors" />
                 )}
                 {avatarPreview && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Upload className="w-4 h-4 text-white" />
                   </div>
                 )}
               </div>
               <div className="flex-1">
-                <label className="block text-sm font-medium text-[#E6EDF3]">Profile Photo</label>
-                <p className="text-xs text-[#8B949E] mt-0.5">Optional. PNG or JPG.</p>
+                <label className="block text-sm font-bold text-slate-700">Profile Photo</label>
+                <p className="text-xs text-slate-500 mt-1">Optional. PNG or JPG.</p>
               </div>
               <input 
                 type="file" 
@@ -206,42 +205,42 @@ export default function RegisterPage() {
 
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-[#E6EDF3] mb-1.5">Full Name</label>
+              <label className="block text-xs font-bold text-slate-700 mb-2">Full Name</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Ramesh Kumar"
-                className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-3 py-2.5 text-sm text-[#E6EDF3] placeholder-[#8B949E] focus:outline-none focus:border-[#6366F1] focus:ring-1 focus:ring-[#6366F1] transition-colors"
+                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C] transition-colors"
               />
             </div>
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-[#E6EDF3] mb-1.5">Phone Number</label>
+              <label className="block text-xs font-bold text-slate-700 mb-2">Phone Number</label>
               <input
                 type="tel"
                 required
                 value={phone}
                 onChange={handlePhoneChange}
                 placeholder="+91 98765 43210"
-                className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-3 py-2.5 text-sm text-[#E6EDF3] placeholder-[#8B949E] focus:outline-none focus:border-[#6366F1] focus:ring-1 focus:ring-[#6366F1] transition-colors"
+                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C] transition-colors"
               />
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 mt-2">
-                <p className="text-xs text-red-400">{error}</p>
+              <div className="bg-red-50 text-red-600 text-xs px-4 py-3 rounded-xl border border-red-100 font-medium">
+                {error}
               </div>
             )}
 
             <button
               type="submit"
               disabled={submitting || name.trim() === ""}
-              className="w-full mt-4 bg-[#6366F1] hover:bg-[#4F46E5] text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+              className="w-full mt-2 bg-[#0B4F6C] hover:bg-[#083a52] text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 shadow-md shadow-[#0B4F6C]/20"
             >
-              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
               {submitting ? "Saving..." : "Save & continue →"}
             </button>
 
