@@ -20,7 +20,7 @@ export default function DashboardNoticesPage() {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data: props } = await supabase.from('properties').select('id, name').eq('landlord_id', user.id);
+      const { data: props } = await supabase.from('properties').select('id, name').eq('owner_id', user.id);
       setProperties(props ?? []);
       if (props && props.length > 0) {
         setSelectedProp(props[0].id);
@@ -41,7 +41,7 @@ export default function DashboardNoticesPage() {
     if (!title.trim() || !selectedProp) return;
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from('notices').insert({ property_id: selectedProp, landlord_id: user!.id, title, body, pinned });
+    await supabase.from('notices').insert({ property_id: selectedProp, owner_id: user!.id, title, body, pinned });
     setTitle(''); setBody(''); setPinned(false); setShowForm(false);
     const { data } = await supabase.from('notices').select('*').eq('property_id', selectedProp).order('created_at', { ascending: false });
     setNotices(data ?? []);

@@ -1,0 +1,47 @@
+-- Migration to add rich property attributes
+
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS size_sqft numeric;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS bhk int;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_duplex bool default false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS floor_number int;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS total_floors int;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS lat float8;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS lng float8;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS google_maps_url text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS door_facing text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS furnishing text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_solar bool default false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_borewell bool default false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_parking bool default false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_wifi bool default false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_ac bool default false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_lift bool default false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_gym bool default false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_security bool default false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS electricity_model text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS electricity_fixed numeric;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_model text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_fixed numeric;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS rent_price numeric;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS pg_price_sharing numeric;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS pg_price_single numeric;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS security_deposit numeric;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS maintenance_charge numeric;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS photos text[];
+
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS size_sqft numeric;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS bhk int;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS door_facing text;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS furnishing text;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS has_solar bool;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS has_borewell bool;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS electricity_model text;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS water_model text;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS rent_price numeric;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS pg_price_sharing numeric;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS pg_price_single numeric;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS security_deposit numeric;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS maintenance_charge numeric;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS floor_number int;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS total_floors int;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS is_duplex bool;

@@ -12,7 +12,7 @@ export default async function DashboardListingsPage() {
   const { data: properties } = await supabase
     .from('properties')
     .select('id')
-    .eq('landlord_id', session.user.id);
+    .eq('owner_id', session.user.id);
 
   const propertyIds = properties?.map(p => p.id) || [];
 
@@ -20,7 +20,7 @@ export default async function DashboardListingsPage() {
   if (propertyIds.length > 0) {
     const { data: tenancies } = await supabase
       .from('tenancies')
-      .select('id, unit_number, rent_amount, status, property_id')
+      .select('id, unit_number, rent_amount, status, property_id, properties(*)')
       .in('property_id', propertyIds);
     units = tenancies || [];
   }

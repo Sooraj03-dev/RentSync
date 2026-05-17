@@ -23,7 +23,7 @@ export default function DashboardExpensesPage() {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data: props } = await supabase.from('properties').select('id,name').eq('landlord_id', user.id);
+      const { data: props } = await supabase.from('properties').select('id,name').eq('owner_id', user.id);
       setProperties(props ?? []);
       if (props && props.length > 0) {
         setSelectedProp(props[0].id);
@@ -40,11 +40,27 @@ export default function DashboardExpensesPage() {
 
   const handleSave = async () => {
     if (!form.amount || !selectedProp) return;
+    const amountNum = parseFloat(form.amount);
+    if (isNaN(amountNum)) {
+      alert('Please enter a valid amount');
+      return;
+    }
+
     setSaving(true);
-    await supabase.from('expenses').insert({ ...form, amount: parseFloat(form.amount), property_id: selectedProp });
-    await loadExpenses(selectedProp);
-    setForm({ category: 'repairs', amount: '', description: '', expense_date: new Date().toISOString().slice(0,10) });
-    setShowForm(false);
+    const { error } = await supabase.from('expenses').insert({ 
+      ...form, 
+      amount: amountNum, 
+      property_id: selectedProp 
+    });
+
+    if (error) {
+      console.error('Save expense error:', error);
+      alert(`Failed to save expense: ${error.message}`);
+    } else {
+      await loadExpenses(selectedProp);
+      setForm({ category: 'repairs', amount: '', description: '', expense_date: new Date().toISOString().slice(0, 10) });
+      setShowForm(false);
+    }
     setSaving(false);
   };
 
@@ -73,7 +89,7 @@ export default function DashboardExpensesPage() {
     const end = polarToCartesian(100, 100, 80, cumAngle);
     const largeArc = angle > 180 ? 1 : 0;
     const path = `M100,100 L${start.x},${start.y} A80,80 0 ${largeArc},1 ${end.x},${end.y} Z`;
-    return { ...d, path };
+    return { ...d, path, angle };
   });
 
   return (
@@ -84,7 +100,7 @@ export default function DashboardExpensesPage() {
           <p className="text-slate-500 mt-1 text-sm">Track property running costs.</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={exportCSV} className="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-800 rounded-lg text-sm font-semibold transition-colors">
+          <button onClick={exportCSV} className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-semibold transition-colors">
             <Download className="w-4 h-4" /> CSV
           </button>
           <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors">
@@ -140,8 +156,10 @@ export default function DashboardExpensesPage() {
           <div className="bg-white border border-slate-200 rounded-xl p-5">
             <h3 className="text-sm font-semibold text-slate-700 mb-4">Spend by Category</h3>
             <div className="flex flex-col items-center">
-              <svg viewBox="0 0 200 200" className="w-36 h-36">
-                {slices.map(s => (
+              <svg viewBox="0 0 200 200" className="w-56 h-56">
+                {slices.map(s => s.angle >= 359.9 ? (
+                  <circle key={s.cat} cx="100" cy="100" r="80" fill={COLORS[s.cat]} opacity={0.85} />
+                ) : (
                   <path key={s.cat} d={s.path} fill={COLORS[s.cat]} opacity={0.85} />
                 ))}
                 <circle cx="100" cy="100" r="45" fill="#1E293B" />

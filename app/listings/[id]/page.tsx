@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Wifi, Wind, Car, Utensils, Droplets, MapPin, Phone } from 'lucide-react';
+import { ArrowLeft, Wifi, Wind, Car, Utensils, Droplets, MapPin, Phone, Building2 } from 'lucide-react';
+import { PricingComparison } from '@/components/property/PricingComparison';
 
 export default async function ListingDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -58,50 +59,75 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
             ))}
           </div>
 
-          <div className="mt-6 flex justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">{listing.unit_number}</h1>
-              <p className="text-slate-500 flex items-center gap-1 mt-1 text-sm">
-                <MapPin className="w-3.5 h-3.5" /> 
-                Bengaluru
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-3xl font-bold text-blue-600">₹{listing.rent_amount.toLocaleString('en-IN')}</p>
-              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-1">Per Month</p>
+          <div className="mt-6">
+            <h1 className="text-2xl font-bold text-slate-900">{listing.unit_number}</h1>
+            <p className="text-slate-500 flex items-center gap-1 mt-1 text-sm">
+              <MapPin className="w-3.5 h-3.5" /> 
+              {listing.door_facing ? `Facing ${listing.door_facing} · ` : ''}Bengaluru
+            </p>
+          </div>
+
+          <div className="mt-6 border-t border-slate-200 pt-6">
+             <PricingComparison 
+                rentPrice={listing.rent_price}
+                pgSharing={listing.pg_price_sharing}
+                pgSingle={listing.pg_price_single}
+                maintenance={listing.maintenance_charge}
+                electricityFixed={listing.electricity_fixed}
+                waterFixed={listing.water_fixed}
+                deposit={listing.security_deposit}
+                bhk={listing.bhk}
+                contactWa={listing.contact_wa}
+              />
+          </div>
+
+          <div className="mt-8">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">Property Details</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                <span className="block text-xs text-slate-500 font-semibold mb-1">BHK</span>
+                <span className="font-bold text-slate-800">{listing.bhk || '-'}</span>
+              </div>
+              <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                <span className="block text-xs text-slate-500 font-semibold mb-1">Size</span>
+                <span className="font-bold text-slate-800">{listing.size_sqft ? `${listing.size_sqft} sqft` : '-'}</span>
+              </div>
+              <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                <span className="block text-xs text-slate-500 font-semibold mb-1">Furnishing</span>
+                <span className="font-bold text-slate-800 capitalize">{listing.furnishing || '-'}</span>
+              </div>
+              <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                <span className="block text-xs text-slate-500 font-semibold mb-1">Floor</span>
+                <span className="font-bold text-slate-800">{listing.floor_number || '-'}/{listing.total_floors || '-'}</span>
+              </div>
             </div>
           </div>
 
           <div className="mt-8">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">Amenities</h3>
-            {listing.amenities && listing.amenities.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {listing.amenities.map((a: string) => (
-                  <div key={a} className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 text-sm font-medium">
-                    <span className="text-blue-500">{getAmenityIcon(a)}</span>
-                    {a}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-slate-500 text-sm">No amenities listed.</p>
-            )}
+            <div className="flex flex-wrap gap-2">
+               {[
+                { label: 'Solar Water', val: listing.has_solar },
+                { label: 'Borewell', val: listing.has_borewell },
+                { label: 'Covered Parking', val: listing.has_parking || listing.amenities?.includes('parking') },
+                { label: 'Wi-Fi', val: listing.has_wifi || listing.amenities?.includes('wifi') },
+                { label: 'AC', val: listing.has_ac || listing.amenities?.includes('ac') },
+                { label: 'Lift', val: listing.has_lift || listing.amenities?.includes('lift') },
+                { label: 'Gym', val: listing.has_gym || listing.amenities?.includes('gym') },
+                { label: 'Security', val: listing.has_security || listing.amenities?.includes('security') }
+              ].map(a => a.val && (
+                <div key={a.label} className="px-3 py-1.5 text-sm font-semibold rounded-full border bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  {a.label}
+                </div>
+              ))}
+              {(!listing.has_solar && !listing.has_parking && !listing.has_wifi && !listing.amenities?.length) && (
+                 <p className="text-slate-500 text-sm">No amenities listed.</p>
+              )}
+            </div>
           </div>
 
         </main>
-
-        {/* Floating CTA */}
-        <div className="fixed bottom-0 max-w-3xl w-full p-4 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)]">
-          <a 
-            href={`https://wa.me/${listing.contact_wa}?text=Hi, I'm interested in your property: ${listing.unit_number}`}
-            target="_blank"
-            rel="noreferrer"
-            className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-3.5 rounded-xl transition-colors shadow-md shadow-[#25D366]/20"
-          >
-            <Phone className="w-5 h-5" />
-            Message Landlord on WhatsApp
-          </a>
-        </div>
       </div>
     </div>
   );

@@ -11,8 +11,26 @@ import L from 'leaflet';
 import 'leaflet.offline';
 
 export default function MapInner({ features }: { features: any[] }) {
-  const position: [number, number] = [12.9716, 77.5946]; // Bengaluru
+  const [position, setPosition] = useState<[number, number]>([12.9716, 77.5946]); // Default Bengaluru
   const [caching, setCaching] = useState(false);
+
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setPosition([pos.coords.latitude, pos.coords.longitude]),
+        (err) => console.error('Geolocation error:', err),
+        { enableHighAccuracy: true }
+      );
+    }
+  }, []);
+
+  const MapUpdater = ({ pos }: { pos: [number, number] }) => {
+    const map = useMap();
+    useEffect(() => {
+      map.setView(pos, map.getZoom());
+    }, [pos, map]);
+    return null;
+  };
 
   // Custom component to handle offline layer
   const OfflineLayer = () => {
@@ -21,7 +39,8 @@ export default function MapInner({ features }: { features: any[] }) {
       // Create the offline tile layer
       const LAny = L as any;
       const tileLayerOffline = LAny.tileLayer.offline('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OSM contributors'
+        attribution: '&copy; OpenStreetMap',
+        className: 'map-tiles-3d'
       }).addTo(map);
 
       // Add a control to save tiles
@@ -47,9 +66,27 @@ export default function MapInner({ features }: { features: any[] }) {
     return null;
   };
 
+    const pulseIcon = L.divIcon({
+      className: 'bg-transparent border-none',
+      html: `
+        <div class="relative flex h-5 w-5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-5 w-5 bg-red-600 border-2 border-white shadow-sm"></span>
+        </div>
+      `,
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
+    });
+
   return (
     <MapContainer center={position} zoom={12} scrollWheelZoom={true} className="w-full h-full z-0 relative rounded-xl border border-slate-200 shadow-sm">
+      <MapUpdater pos={position} />
       <OfflineLayer />
+      <Marker position={position} icon={pulseIcon} zIndexOffset={1000}>
+        <Popup className="rounded-xl overflow-hidden font-bold text-slate-800 text-center py-1">
+          You are here
+        </Popup>
+      </Marker>
       <MarkerClusterGroup chunkedLoading>
         {features.map((feature) => {
           const { coordinates } = feature.geometry;

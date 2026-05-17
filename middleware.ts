@@ -27,7 +27,11 @@ export async function middleware(request: NextRequest) {
 
   // Public routes — never redirect
   const publicRoutes = ['/', '/login', '/signup', '/register', '/offline', '/auth'];
-  if (publicRoutes.some(r => pathname === r || pathname.startsWith('/auth'))) {
+  const isPublic = 
+    publicRoutes.some(r => pathname === r || pathname.startsWith('/auth')) ||
+    pathname.startsWith('/listings') ||
+    pathname.startsWith('/api/listings');
+  if (isPublic) {
     return supabaseResponse;
   }
 

@@ -14,9 +14,9 @@ export default async function DashboardRentPage() {
     .from('rent_payments')
     .select(`
       id, tenancy_id, amount_paid, payment_date, month_year, status,
-      tenancies!inner(unit_number, property_id, profiles(name), properties!inner(landlord_id))
+      tenancies!inner(unit_number, property_id, profiles(name), properties!inner(owner_id))
     `)
-    .eq('tenancies.properties.landlord_id', user.id)
+    .eq('tenancies.properties.owner_id', user.id)
     .order('created_at', { ascending: false });
 
   return (

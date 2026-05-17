@@ -11,6 +11,7 @@ type Unit = {
   rent_amount: number;
   status: string;
   property_id: string;
+  properties?: any;
 };
 
 type Listing = {
@@ -48,21 +49,46 @@ export default function ListingsManager({ units, initialListings }: { units: Uni
       }
     } else {
       // Create new listing
-      // Normally lat/lng would be derived from the property. For demo, we default to Bengaluru.
-      const lat = 12.9716 + (Math.random() - 0.5) * 0.1;
-      const lng = 77.5946 + (Math.random() - 0.5) * 0.1;
+      const prop = unit.properties || {};
+      const lat = prop.lat || 12.9716 + (Math.random() - 0.5) * 0.1;
+      const lng = prop.lng || 77.5946 + (Math.random() - 0.5) * 0.1;
+      
+      const amenitiesArr = [];
+      if (prop.has_wifi) amenitiesArr.push('wifi');
+      if (prop.has_ac) amenitiesArr.push('ac');
+      if (prop.has_parking) amenitiesArr.push('parking');
+      if (prop.has_gym) amenitiesArr.push('gym');
+      if (prop.has_lift) amenitiesArr.push('lift');
+      if (prop.has_security) amenitiesArr.push('security');
       
       const { data, error } = await supabase
         .from('listings')
         .insert({
           property_id: unit.property_id,
           unit_number: unit.unit_number,
-          rent_amount: unit.rent_amount,
+          rent_amount: prop.rent_price || unit.rent_amount,
           lat,
           lng,
-          amenities: ['wifi', 'parking'],
+          amenities: amenitiesArr,
           contact_wa: '919876543210',
           is_available: true,
+          size_sqft: prop.size_sqft,
+          bhk: prop.bhk,
+          door_facing: prop.door_facing,
+          furnishing: prop.furnishing,
+          has_solar: prop.has_solar,
+          has_borewell: prop.has_borewell,
+          electricity_model: prop.electricity_model,
+          water_model: prop.water_model,
+          rent_price: prop.rent_price,
+          pg_price_sharing: prop.pg_price_sharing,
+          pg_price_single: prop.pg_price_single,
+          security_deposit: prop.security_deposit,
+          maintenance_charge: prop.maintenance_charge,
+          floor_number: prop.floor_number,
+          total_floors: prop.total_floors,
+          is_duplex: prop.is_duplex,
+          photos: prop.photos ? prop.photos.slice(0, 5) : null
         })
         .select()
         .single();

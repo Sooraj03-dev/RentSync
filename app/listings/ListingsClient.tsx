@@ -91,7 +91,7 @@ export default function ListingsClient() {
       </div>
 
       {/* Map Area */}
-      <div className="flex-1 relative p-4">
+      <div className="flex-1 relative z-0 m-4 rounded-3xl overflow-hidden shadow-[0_20px_40px_-15px_rgba(0,0,0,0.2)] border-4 border-white">
         {isLoading ? (
           <div className="w-full h-full bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-slate-400">Loading properties...</div>
         ) : error ? (

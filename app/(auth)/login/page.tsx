@@ -19,6 +19,12 @@ import Link from "next/link";
 type Role = "landlord" | "tenant";
 type LoginMode = "password" | "otp";
 
+// Demo account hints shown under the email field
+const DEMO_ACCOUNTS: Record<Role, { email: string; password: string }> = {
+  landlord: { email: "ramesh@example.com", password: "password123" },
+  tenant:   { email: "priya@example.com",  password: "password123" },
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -26,12 +32,10 @@ export default function LoginPage() {
   const [role, setRole] = useState<Role>("landlord");
   const [mode, setMode] = useState<LoginMode>("password");
 
-  // Password login state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // OTP login state
   const [otpEmail, setOtpEmail] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [token, setToken] = useState("");
@@ -39,6 +43,32 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // ── After successful sign-in, redirect based on profile role ──
+  const redirectAfterLogin = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, name, onboarded")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile?.name) {
+      router.push("/register");
+      return;
+    }
+    if (!profile?.onboarded) {
+      router.push("/onboard");
+      return;
+    }
+    if (profile?.role === "landlord") {
+      router.push("/dashboard");
+    } else {
+      router.push("/tenant");
+    }
+  };
 
   // ── Password Sign In ──
   const handlePasswordLogin = async (e: React.FormEvent) => {
@@ -51,12 +81,12 @@ export default function LoginPage() {
       password,
     });
 
-    setLoading(false);
-
     if (signInError) {
       setError(signInError.message);
+      setLoading(false);
     } else {
-      router.push("/register");
+      await redirectAfterLogin();
+      setLoading(false);
     }
   };
 
@@ -96,22 +126,29 @@ export default function LoginPage() {
       type: "email",
     });
 
-    setLoading(false);
-
     if (verifyError) {
       setError("Invalid or expired code. Please try again.");
+      setLoading(false);
     } else {
-      router.push("/register");
+      await redirectAfterLogin();
+      setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
+    const callbackUrl = `${window.location.origin}/auth/callback?next=/dashboard`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=/register` },
+      options: { redirectTo: callbackUrl },
     });
     if (error) { setError(error.message); setLoading(false); }
+  };
+
+  // ── Quick fill demo credentials ──
+  const fillDemo = () => {
+    setEmail(DEMO_ACCOUNTS[role].email);
+    setPassword(DEMO_ACCOUNTS[role].password);
   };
 
   return (
@@ -135,7 +172,7 @@ export default function LoginPage() {
         
         {/* Logo */}
         <div className="flex flex-col items-center mb-8 gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
+          <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
             <ShieldCheck className="w-8 h-8 text-white" />
           </div>
           <div className="text-center">
@@ -146,7 +183,7 @@ export default function LoginPage() {
 
         {/* Card */}
         <div className="w-full max-w-sm">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-7 flex flex-col gap-5">
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-7 flex flex-col gap-5">
 
             {/* Role Selector */}
             <div className="grid grid-cols-2 gap-2">
@@ -154,26 +191,40 @@ export default function LoginPage() {
                 <button
                   key={r}
                   type="button"
-                  onClick={() => setRole(r)}
+                  onClick={() => { setRole(r); setError(null); setEmail(""); setPassword(""); }}
                   className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-bold uppercase tracking-widest transition-all ${
                     role === r
-                      ? "border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-900/20"
-                      : "border-slate-200 text-slate-500 hover:border-blue-500/50 hover:text-slate-800"
+                      ? r === "landlord"
+                        ? "border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-200"
+                        : "border-emerald-500 bg-emerald-500 text-white shadow-md shadow-emerald-200"
+                      : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
                   }`}
                 >
                   {r === "landlord" ? <Building2 className="w-4 h-4" /> : <User className="w-4 h-4" />}
-                  {r}
+                  {r === "landlord" ? "Landlord" : "Tenant"}
                 </button>
               ))}
             </div>
 
+            {/* Role hint */}
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium ${
+              role === "landlord" 
+                ? "bg-blue-50 text-blue-700 border border-blue-100" 
+                : "bg-emerald-50 text-emerald-700 border border-emerald-100"
+            }`}>
+              {role === "landlord" 
+                ? <><Building2 className="w-3.5 h-3.5 shrink-0" /> Signing in as a <strong>Landlord</strong> → opens Property Dashboard</>
+                : <><User className="w-3.5 h-3.5 shrink-0" /> Signing in as a <strong>Tenant</strong> → opens Tenant Portal</>
+              }
+            </div>
+
             {/* Mode Toggle */}
-            <div className="flex bg-slate-50/80 p-1 rounded-xl">
+            <div className="flex bg-slate-100 p-1 rounded-xl">
               <button
                 type="button"
                 onClick={() => { setMode("password"); setError(null); setSuccessMsg(null); }}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${
-                  mode === "password" ? "bg-white text-blue-400 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                  mode === "password" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
                 }`}
               >
                 <Mail className="w-3.5 h-3.5" />
@@ -183,7 +234,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => { setMode("otp"); setError(null); setSuccessMsg(null); setOtpSent(false); setToken(""); }}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${
-                  mode === "otp" ? "bg-white text-blue-400 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                  mode === "otp" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
                 }`}
               >
                 <Hash className="w-3.5 h-3.5" />
@@ -195,14 +246,19 @@ export default function LoginPage() {
             {mode === "password" && (
               <form onSubmit={handlePasswordLogin} className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">Email Address</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-[10px] font-bold tracking-widest text-slate-500 uppercase">Email Address</label>
+                    <button type="button" onClick={fillDemo} className="text-[10px] text-blue-500 font-semibold hover:underline">
+                      Use demo credentials
+                    </button>
+                  </div>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    placeholder={DEMO_ACCOUNTS[role].email}
+                    className="w-full border border-slate-200 bg-white rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                   />
                 </div>
                 <div>
@@ -214,12 +270,12 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 pr-11 text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                      className="w-full border border-slate-200 bg-white rounded-xl px-4 py-3 pr-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -227,15 +283,22 @@ export default function LoginPage() {
                 </div>
 
                 {error && (
-                  <p className="text-xs text-red-400 bg-red-900/20 border border-red-800 rounded-xl px-3 py-2.5">{error}</p>
+                  <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">{error}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-60 shadow-md shadow-blue-900/20"
+                  className={`w-full text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-60 shadow-md ${
+                    role === "landlord" 
+                      ? "bg-blue-600 hover:bg-blue-700 shadow-blue-200" 
+                      : "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200"
+                  }`}
                 >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Sign In <ArrowRight className="w-4 h-4" /></>}
+                  {loading 
+                    ? <Loader2 className="w-5 h-5 animate-spin" /> 
+                    : <>{role === "landlord" ? "Open Dashboard" : "Open Tenant Portal"} <ArrowRight className="w-4 h-4" /></>
+                  }
                 </button>
               </form>
             )}
@@ -251,19 +314,19 @@ export default function LoginPage() {
                     value={otpEmail}
                     onChange={(e) => setOtpEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    className="w-full border border-slate-200 bg-white rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                   />
                 </div>
                 <p className="text-xs text-slate-500">We'll send a 6-digit code to your inbox.</p>
 
                 {error && (
-                  <p className="text-xs text-red-400 bg-red-900/20 border border-red-800 rounded-xl px-3 py-2.5">{error}</p>
+                  <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">{error}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-60 shadow-md shadow-blue-900/20"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-60 shadow-md shadow-blue-200"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Send Code <ArrowRight className="w-4 h-4" /></>}
                 </button>
@@ -273,7 +336,7 @@ export default function LoginPage() {
             {mode === "otp" && otpSent && (
               <form onSubmit={handleVerifyOTP} className="flex flex-col gap-4">
                 {successMsg && (
-                  <div className="text-xs text-emerald-400 bg-emerald-900/20 border border-emerald-800 rounded-xl px-3 py-2.5">
+                  <div className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5">
                     {successMsg}
                   </div>
                 )}
@@ -286,18 +349,18 @@ export default function LoginPage() {
                     value={token}
                     onChange={(e) => setToken(e.target.value.replace(/\D/g, ""))}
                     placeholder="e.g. 123456"
-                    className="w-full border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 text-center text-2xl font-mono font-bold tracking-[0.5em] text-slate-900 placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    className="w-full border border-slate-200 bg-white rounded-xl px-4 py-3 text-center text-2xl font-mono font-bold tracking-[0.5em] text-slate-900 placeholder-slate-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                   />
                 </div>
 
                 {error && (
-                  <p className="text-xs text-red-400 bg-red-900/20 border border-red-800 rounded-xl px-3 py-2.5">{error}</p>
+                  <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">{error}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={loading || token.length !== 6}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-60 shadow-md shadow-blue-900/20"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-60 shadow-md shadow-blue-200"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Verify & Sign In <ArrowRight className="w-4 h-4" /></>}
                 </button>
@@ -314,9 +377,9 @@ export default function LoginPage() {
 
             {/* Divider */}
             <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-slate-700" />
-              <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">Or</span>
-              <div className="h-px flex-1 bg-slate-700" />
+              <div className="h-px flex-1 bg-slate-200" />
+              <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Or</span>
+              <div className="h-px flex-1 bg-slate-200" />
             </div>
 
             {/* Google Sign In */}
@@ -324,7 +387,7 @@ export default function LoginPage() {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 border border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50 transition-colors disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-3 border border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -339,7 +402,7 @@ export default function LoginPage() {
           {/* Footer link */}
           <p className="text-center text-sm text-slate-500 mt-6">
             New to RentSync?{" "}
-            <Link href="/signup" className="text-blue-400 font-bold hover:text-blue-300 hover:underline">
+            <Link href="/signup" className="text-blue-600 font-bold hover:underline">
               Create an account
             </Link>
           </p>
@@ -347,13 +410,13 @@ export default function LoginPage() {
       </main>
 
       {/* Footer */}
-      <footer className="py-6 px-8 bg-slate-100 text-center border-t border-slate-300">
+      <footer className="py-6 px-8 bg-white text-center border-t border-slate-200">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs font-bold text-slate-500">RentSync · © 2024 All rights reserved.</p>
-          <nav className="flex gap-5 text-xs text-slate-500">
-            <Link href="#" className="hover:text-slate-800 transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-slate-800 transition-colors">Terms</Link>
-            <Link href="#" className="hover:text-slate-800 transition-colors">Support</Link>
+          <p className="text-xs font-bold text-slate-400">RentSync · © 2024 All rights reserved.</p>
+          <nav className="flex gap-5 text-xs text-slate-400">
+            <Link href="#" className="hover:text-slate-700 transition-colors">Privacy</Link>
+            <Link href="#" className="hover:text-slate-700 transition-colors">Terms</Link>
+            <Link href="#" className="hover:text-slate-700 transition-colors">Support</Link>
           </nav>
         </div>
       </footer>

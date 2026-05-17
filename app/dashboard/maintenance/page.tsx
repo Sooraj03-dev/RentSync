@@ -21,9 +21,9 @@ export default function DashboardMaintenancePage() {
         .from('maintenance_requests')
         .select(`
           id, tenancy_id, title, category, status, landlord_note, created_at,
-          tenancies!inner(unit_number, property_id, profiles(name), properties!inner(landlord_id))
+          tenancies!inner(unit_number, property_id, profiles(name), properties!inner(owner_id))
         `)
-        .eq('tenancies.properties.landlord_id', user.id)
+        .eq('tenancies.properties.owner_id', user.id)
         .order('created_at', { ascending: false });
       setTickets(data ?? []);
       setLoading(false);

@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   // Get landlord email for the tenancy
   const { data: tenancy } = await supabase
     .from('tenancies')
-    .select('unit_number, properties(name, landlord_id, profiles(email, name))')
+    .select('unit_number, properties(name, owner_id, profiles(email, name))')
     .eq('id', tenancy_id)
     .single();
 

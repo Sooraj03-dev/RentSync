@@ -18,4 +18,12 @@
     scrollbar-width: thin;
     scrollbar-color: #334155 transparent;
   }
+  .custom-price-marker {
+    background: transparent;
+    border: none;
+  }
+  
+  .map-tiles-3d {
+    filter: brightness(0.95) contrast(1.1) saturate(1.2) sepia(0.1) hue-rotate(180deg);
+  }
 }

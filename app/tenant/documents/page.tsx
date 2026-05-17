@@ -30,11 +30,16 @@ export default function TenantDocumentsPage() {
   }, []);
 
   const loadDocs = async (tid: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('documents')
-      .select('*, profiles(name)')
+      .select('*')
       .eq('tenancy_id', tid)
       .order('created_at', { ascending: false });
+      
+    if (error) {
+      console.error("Docs load error:", error);
+      setError("Failed to load documents: " + error.message);
+    }
     setDocs(data ?? []);
   };
 
@@ -58,13 +63,20 @@ export default function TenantDocumentsPage() {
     const { data: urlData } = supabase.storage.from('documents').getPublicUrl(path);
     const { data: { user } } = await supabase.auth.getUser();
 
-    await supabase.from('documents').insert({
+    const { error: dbError } = await supabase.from('documents').insert({
       tenancy_id: tenancyId,
       uploaded_by: user!.id,
       doc_type: docType,
       file_url: urlData.publicUrl,
       file_name: file.name,
     });
+
+    if (dbError) {
+      console.error('DB Insert Error:', dbError);
+      setError('Database error: ' + dbError.message);
+      setUploading(false);
+      return;
+    }
 
     await loadDocs(tenancyId);
     setFile(null); setUploading(false);

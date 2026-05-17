@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = searchParams.get("next"); // optional explicit redirect
 
   if (code) {
     const cookieStore = cookies();
@@ -14,19 +14,13 @@ export async function GET(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
+          getAll() { return cookieStore.getAll(); },
           setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, options as any)
               );
-            } catch (error) {
-              // The `setAll` method was called from a Server Component.
-              // This can be ignored if you have middleware refreshing
-              // user sessions.
-            }
+            } catch {}
           },
         },
       }
@@ -34,10 +28,31 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      // If an explicit next was provided, use it
+      if (next) {
+        return NextResponse.redirect(`${origin}${next}`);
+      }
+
+      // Otherwise resolve based on role
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role, name, onboarded")
+          .eq("id", user.id)
+          .single();
+
+        if (!profile?.name) {
+          return NextResponse.redirect(`${origin}/register`);
+        }
+        if (!profile?.onboarded) {
+          return NextResponse.redirect(`${origin}/onboard`);
+        }
+        const dest = profile?.role === "landlord" ? "/dashboard" : "/tenant";
+        return NextResponse.redirect(`${origin}${dest}`);
+      }
     }
   }
 
-  // return the user to an error page with some instructions
   return NextResponse.redirect(`${origin}/login?error=Could not authenticate user`);
 }
