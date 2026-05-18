@@ -17,7 +17,7 @@ function formatRent(amount: number) {
   return `₹${amount}`;
 }
 
-export default function ListingsMap({ listings, activeId, onMarkerClick }: Props) {
+export default function ListingsMap({ listings = [], activeId, onMarkerClick }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<Map<string, any>>(new Map());

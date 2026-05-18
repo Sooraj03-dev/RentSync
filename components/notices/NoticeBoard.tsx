@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRealtime } from '@/lib/hooks/useRealtime';
 import { formatDate } from '@/lib/utils';
 import { Pin, MessageCircle } from 'lucide-react';
@@ -16,6 +16,11 @@ interface Notice {
 
 export function NoticeBoard({ initialNotices, propertyId }: { initialNotices: Notice[]; propertyId: string }) {
   const [notices, setNotices] = useState<Notice[]>(initialNotices);
+
+  // Sync state if parent fetches new notices
+  useEffect(() => {
+    setNotices(initialNotices);
+  }, [initialNotices]);
 
   const handleRealtime = useCallback((payload: { eventType: string; new: Notice; old: Notice }) => {
     if (payload.eventType === 'INSERT') {

@@ -83,7 +83,7 @@ export function RentGrid({ rows: initialRows, onMarkPaid }: RentGridProps) {
             <th className="text-right px-4 py-3 text-xs font-semibold uppercase tracking-widest text-slate-500">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800">
+        <tbody className="divide-y divide-slate-200">
           {rows.map((row) => {
             const cfg = statusConfig[row.status];
             const StatusIcon = cfg.icon;
@@ -120,7 +120,7 @@ export function RentGrid({ rows: initialRows, onMarkPaid }: RentGridProps) {
                     {row.status === 'paid' && (
                       <button
                         onClick={() => downloadReceipt(row)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-800 text-xs font-semibold transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors"
                       >
                         <Download className="w-3 h-3" />
                         Receipt

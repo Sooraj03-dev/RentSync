@@ -179,7 +179,7 @@ export function AppSidebar() {
         <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
           <Building2 className="w-4 h-4 text-white" />
         </div>
-        <span className="text-white font-bold text-lg tracking-tight">RentSync</span>
+        <span className="font-bold text-lg tracking-tight text-slate-800">RentSync</span>
       </div>
 
       {/* Role badge */}
@@ -187,8 +187,8 @@ export function AppSidebar() {
         <span className={cn(
           'text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full',
           role === 'landlord'
-            ? 'bg-indigo-900/60 text-indigo-300'
-            : 'bg-emerald-900/60 text-emerald-300'
+            ? 'bg-indigo-100 text-indigo-700'
+            : 'bg-emerald-100 text-emerald-700'
         )}>
           {role ?? 'loading…'}
         </span>
@@ -240,7 +240,7 @@ export function AppSidebar() {
         </Link>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-slate-500 hover:text-red-400 hover:bg-red-900/20 transition-all"
+          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all"
         >
           <LogOut className="w-4 h-4" />
           Sign Out

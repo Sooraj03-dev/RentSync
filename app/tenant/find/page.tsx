@@ -114,12 +114,13 @@ function ListingCard({
 
         {/* Actions */}
         <div className="flex items-center gap-2 mt-3">
-          <button
-            className="flex-1 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-lg transition-colors"
+          <Link
+            href={`/listings/${listing.id}`}
             onClick={(e) => e.stopPropagation()}
+            className="flex-1 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-lg transition-colors text-center"
           >
             View Details
-          </button>
+          </Link>
           <Link
             href={`/tenant/messages?property=${listing.id}`}
             onClick={(e) => e.stopPropagation()}

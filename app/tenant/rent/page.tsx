@@ -9,10 +9,45 @@ type PayMethod = 'upi' | 'netbanking' | 'card' | 'wallet';
 type UPIApp = 'gpay' | 'phonepe' | 'paytm' | 'other';
 
 const UPI_APPS = [
-  { id: 'gpay',    label: 'Google Pay',  color: '#4285F4', abbr: 'G' },
-  { id: 'phonepe', label: 'PhonePe',     color: '#5f259f', abbr: 'P' },
-  { id: 'paytm',   label: 'Paytm',       color: '#00BAF2', abbr: 'Pa' },
-  { id: 'other',   label: 'Other UPI',   color: '#6B7280', abbr: '⊕' },
+  {
+    id: 'gpay', label: 'Google Pay', color: '#fff',
+    logo: (
+      <svg viewBox="0 0 48 48" className="w-6 h-6">
+        <path fill="#4285F4" d="M23.99 12c-3.13 0-5.85 1.06-8 2.8L10.8 9.6C14.06 6.96 18.84 5 24 5c5.16 0 9.94 1.96 13.2 4.6l-5.19 5.2A11.93 11.93 0 0 0 24 12z"/>
+        <path fill="#34A853" d="M36 24c0-.68-.06-1.35-.17-2H24v4h6.72a5.74 5.74 0 0 1-2.49 3.77l5.05 5.05C36.32 32.2 38 28.3 38 24z"/>
+        <path fill="#FBBC05" d="M10.8 38.4A18.94 18.94 0 0 1 5 24c0-5.35 2.12-10.2 5.56-13.78L15.75 15.4A11.92 11.92 0 0 0 12 24c0 3.3 1.34 6.3 3.5 8.48L10.8 38.4z"/>
+        <path fill="#EA4335" d="M24 43c5.16 0 9.5-1.7 12.68-4.6l-5.05-5.05A11.92 11.92 0 0 1 24 36a11.93 11.93 0 0 1-8.5-3.52l-5.2 5.2C13.56 40.9 18.61 43 24 43z"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'phonepe', label: 'PhonePe', color: '#5f259f',
+    logo: (
+      <svg viewBox="0 0 48 48" className="w-6 h-6">
+        <rect width="48" height="48" rx="12" fill="#5f259f"/>
+        <text x="24" y="32" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold" fontFamily="Arial">P</text>
+      </svg>
+    ),
+  },
+  {
+    id: 'paytm', label: 'Paytm', color: '#00BAF2',
+    logo: (
+      <svg viewBox="0 0 48 48" className="w-6 h-6">
+        <rect width="48" height="48" rx="12" fill="#00BAF2"/>
+        <text x="24" y="30" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="Arial">Pa</text>
+        <text x="24" y="40" textAnchor="middle" fill="white" fontSize="8" fontFamily="Arial">ytm</text>
+      </svg>
+    ),
+  },
+  {
+    id: 'other', label: 'Other UPI', color: '#6B7280',
+    logo: (
+      <svg viewBox="0 0 48 48" className="w-6 h-6">
+        <rect width="48" height="48" rx="12" fill="#6B7280"/>
+        <text x="24" y="33" textAnchor="middle" fill="white" fontSize="22" fontFamily="Arial">⊕</text>
+      </svg>
+    ),
+  },
 ] as const;
 
 export default function TenantRentPage() {
@@ -120,17 +155,17 @@ export default function TenantRentPage() {
                   payMethod === id ? 'bg-blue-600/10' : 'hover:bg-slate-50/50'
                 }`}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${payMethod === id ? 'bg-blue-600' : 'bg-slate-700'}`}>
-                  <Icon className="w-5 h-5 text-white" />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${payMethod === id ? 'bg-blue-600' : 'bg-slate-200'}`}>
+                  <Icon className={`w-5 h-5 ${payMethod === id ? 'text-white' : 'text-slate-600'}`} />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className={`font-semibold text-sm ${payMethod === id ? 'text-blue-300' : 'text-slate-700'}`}>{label}</span>
-                    {badge && <span className="text-[9px] font-bold bg-emerald-900/60 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded-full tracking-widest">{badge}</span>}
+                    <span className={`font-semibold text-sm ${payMethod === id ? 'text-blue-600' : 'text-slate-700'}`}>{label}</span>
+                    {badge && <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-full tracking-widest">{badge}</span>}
                     {id === 'upi' && <span className="text-[9px] text-slate-500">Recommended</span>}
                   </div>
                 </div>
-                <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${payMethod === id ? 'border-blue-500 bg-blue-500' : 'border-slate-600'}`}>
+                <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${payMethod === id ? 'border-blue-600 bg-blue-600' : 'border-slate-300'}`}>
                   {payMethod === id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                 </div>
               </button>
@@ -147,12 +182,12 @@ export default function TenantRentPage() {
                     key={app.id}
                     onClick={() => setUpiApp(app.id as UPIApp)}
                     className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                      upiApp === app.id ? 'border-blue-500 bg-blue-900/20' : 'border-slate-200 hover:border-slate-600'
+                      upiApp === app.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-white text-sm shrink-0" style={{ background: app.color }}>
-                      {app.abbr}
-                    </div>
+                    <>
+                      {(app as any).logo}
+                    </>
                     <span className="text-sm font-medium text-slate-700">{app.label}</span>
                   </button>
                 ))}
@@ -196,8 +231,8 @@ export default function TenantRentPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-semibold text-slate-800">{formatCurrency(p.amount_paid)}</span>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      p.status === 'paid' ? 'bg-emerald-900/40 text-emerald-400' :
-                      p.status === 'late' ? 'bg-red-900/40 text-red-400' : 'bg-yellow-900/40 text-yellow-400'
+                      p.status === 'paid' ? 'bg-emerald-100 text-emerald-700' :
+                      p.status === 'late' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-700'
                     }`}>{p.status}</span>
                   </div>
                 </div>

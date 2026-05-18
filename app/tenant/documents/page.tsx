@@ -33,8 +33,7 @@ export default function TenantDocumentsPage() {
     const { data, error } = await supabase
       .from('documents')
       .select('*')
-      .eq('tenancy_id', tid)
-      .order('created_at', { ascending: false });
+      .eq('tenancy_id', tid);
       
     if (error) {
       console.error("Docs load error:", error);
@@ -105,12 +104,12 @@ export default function TenantDocumentsPage() {
           <div>
             <label className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 block mb-1.5">File (PDF/JPG/PNG, max 5MB)</label>
             <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setFile(e.target.files?.[0] ?? null)}
-              className="w-full text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-700 file:text-slate-800 file:text-xs file:font-semibold hover:file:bg-slate-600 cursor-pointer" />
+              className="w-full text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:text-xs file:font-semibold hover:file:bg-blue-700 cursor-pointer" />
           </div>
         </div>
         {error && <p className="text-xs text-red-400 bg-red-900/20 border border-red-800 rounded-lg px-3 py-2">{error}</p>}
         <button onClick={handleUpload} disabled={!file || uploading}
-          className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
+          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-40 shadow-sm shadow-blue-200">
           {uploading ? <><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</> : <><Upload className="w-4 h-4" /> Upload</>}
         </button>
       </div>
@@ -138,10 +137,26 @@ export default function TenantDocumentsPage() {
                   <span className="text-xs text-slate-500">{formatDate(doc.created_at)}</span>
                 </div>
               </div>
-              <a href={doc.file_url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-800 text-xs font-semibold rounded-lg transition-colors shrink-0">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(doc.file_url);
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = doc.file_name ?? 'document';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  } catch {
+                    window.open(doc.file_url, '_blank');
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shrink-0">
                 <Download className="w-3.5 h-3.5" /> Download
-              </a>
+              </button>
             </div>
           ))}
         </div>
